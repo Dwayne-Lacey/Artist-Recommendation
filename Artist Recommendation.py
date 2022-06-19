@@ -1,3 +1,4 @@
+import random
 from ArtistData import artist_data
 class TreeNode:
     def __init__(self, genre=None, artist=None, ranking=None, song=None, albums=None):
@@ -31,6 +32,41 @@ class TreeNode:
     def store_data_set(self, data_set):
         for data in data_set:
             self.add_artist_node(data[0], data[1], data[2], data[3], data[4])
+    
+    def quicksort(self, data_list, start, end):
+        if start >= end:
+            return
+        print("Running quicksort on {0}".format(data_list[start: end + 1]))
+        #select random element to be pivot
+        pivot_idx = random.randrange(start, end + 1)
+        pivot_element = data_list[pivot_idx]
+        print("Selected pivot {0}".format(pivot_element))
+        # swap random element with last element in sub-lists
+        data_list[end], data_list[pivot_idx] = data_list[pivot_idx], data_list[end]
+        
+        # tracks all elements which should be to left (lesser than) pivot
+        less_than_pointer = start
+
+        for i in range(start, end):
+            # we found an element out of place
+            if data_list[i] < pivot_element:
+                # swap element to the right-most portion of lesser elements
+                print("Swapping {0} with {1}".format(data_list[i], pivot_element))
+                data_list[i], data_list[less_than_pointer] = data_list[less_than_pointer], data_list[i]
+                # tally that we have one more lesser element
+                less_than_pointer += 1
+        # move pivot element to the right-most portion of lesser elements        
+        data_list[end], data_list[less_than_pointer] = data_list[less_than_pointer], data_list[end]
+        print(f"The end index is {end}, value is {data_list[end]}")
+        print(f"The less_than_pointer index is {less_than_pointer}, value is {data_list[less_than_pointer]}")
+        print("{0} successfully partitioned".format(data_list[start: end + 1]))
+        # recursively sort left and right sub-lists
+        self.quicksort(data_list, start, less_than_pointer - 1)
+        self.quicksort(data_list, less_than_pointer + 1, end)
+
+
+
+        
 
 
 music_tree = TreeNode()
@@ -39,6 +75,11 @@ music_tree = TreeNode()
 
 
 music_tree.store_data_set(artist_data)
+sort_list = list(music_tree.children.keys())
+print(sort_list)
+music_tree.quicksort(sort_list, 0, len(sort_list) - 1)
+print(sort_list)
+
 
 for artist in music_tree.children["Rap"].children.values():
     print(f"""
@@ -50,3 +91,8 @@ for artist in music_tree.children["Rap"].children.values():
     # of Albums: {artist.albums}
 --------------------------------------
     """)
+
+print('Alternative' < "Country")
+print("Country" < "Hip-Hop")
+print("Hip-Hop" < "K-Pop")
+print("K-Pop" < "Latin")
