@@ -10,15 +10,15 @@ class TreeNode:
         self.children = {}
     
     def add_genre_node(self, genre):
-        if genre in self.children.keys():
+        if genre.lower() in self.children.keys():
             print(f"The genre '{genre}' is already stored in the tree.")
         else:
-            self.children[genre] = TreeNode(genre)
+            self.children[genre.lower()] = TreeNode(genre)
     
     def add_artist_node(self, genre, artist, ranking, song, albums):
-        if genre not in self.children.keys():
+        if genre.lower() not in self.children.keys():
             self.add_genre_node(genre)
-        current_genre = self.children[genre]
+        current_genre = self.children[genre.lower()]
         if artist not in current_genre.children.keys():
             current_genre.children[artist] = TreeNode(genre, artist, ranking, song, albums)
         else:
@@ -58,31 +58,112 @@ class TreeNode:
         self.quicksort(data_list, start, less_than_pointer - 1)
         self.quicksort(data_list, less_than_pointer + 1, end)
 
-
-
+    def modified_binary_search(self, search, data_list):
+        keys_to_search = data_list.copy()
+        target = search.lower()
+        self.quicksort(keys_to_search, 0, len(keys_to_search) - 1)
+        left_pointer = 0
+        right_pointer = len(keys_to_search)
+        results = []
+        while right_pointer - left_pointer > 1:
+            mid_idx = (left_pointer + right_pointer) // 2            
+            current_value = keys_to_search[mid_idx]
+            if current_value[0:len(search)] == target:
+                results.append(keys_to_search.pop(mid_idx))
+                right_pointer = len(keys_to_search)
+            elif current_value[0:len(search)] > target:
+                right_pointer = mid_idx
+            elif current_value[0:len(search)] < target:
+                left_pointer = mid_idx
         
+        if len(results) == 0:
+            return None
+        else:
+            return results
+    
+    def search_loop(self, list):
+        print("What genre of music would you like to listen to?")
+        search_value = input("Type the beginning of that genre and press enter to see if it's there.\n")
+        search_results = self.modified_binary_search(search_value, list)
+        if search_results == None:
+            print(f"There were no genres found for {search_value}.")
+            return None
+        elif len(search_results) > 1:
+            print(f"With those beginning letters, your choices are {search_results}.")
+            self.search_loop(search_results)
+        else:
+            user_response = ""
+            while user_response != "y" and user_response != "n":
+                user_response = input(f"The only option with those beginning letters is {search_results[0]}. Do you want to look at {search_results[0]} artists? Enter 'y' for yes 'n' for no. \n").lower()
+            if user_response == "y":
+                for artist in self.children[search_results[0]].children.values():
+                    print(f"""
+                --------------------------------------
+                    Genre: {artist.genre}
+                    Artist: {artist.artist}
+                    Billboard Ranking: {artist.ranking}/100
+                    Top Song: {artist.song}
+                    # of Albums: {artist.albums}
+                    """)
+                    
 
 
-music_tree = TreeNode()
 
 
+# Function to execute program
+def recommend_artists():
+    music_tree = TreeNode()    
+    music_tree.store_data_set(artist_data)
+    sort_list = list(music_tree.children.keys())    
+
+    print("""
+                         :+""  ~<<::""+:
+                +Xi<<<<!<  `<<!?!<<<HMti%L
+            :?HMMMM:<<<!<~ <<<!X<<<!MM88MMh?x
+          !HMRMMRMMM:<<<!< <<<!!<<<MR88MRMMRMH?.
+        ?NMMMMMMMMMMM<<<?<  <<!!<<XM88RMMMMMMMMM?
+      !88888MMMMMMRMMk<<!!  <<H!<<M88MRMMRMMMRMMRM!
+     <M8888888MMMMMMMM:<<!  <<H<<488RMMMMMMMMMMMMMM>:
+   xHMRMMR888888RMMMMMM<<!< <!!<<988RMMMRMMRMMMMM?!<<%
+  :XMMMMMMMM88888MMMMMMH<<~ ~~~<X8RMMMMMMMMMMM!!<~    k
+  <<<!MMRMMRMMR8888MMP.n~       #R.#MMRMMRM?<~~   .nMMh.
+ !MMH:<<<!*MMMMMMM8Pu! n"       "+ "h!MM!!~   :@MMMMMMM/
+.HMRMMRMMMH:<<"*RM M @             * "   .nMMMMMMMRMMRMMk
+MMMMMMMMMMMMMMMMx < "      .u.        4'MMMMMMMMMMMMMMMM9
+!RMMRMMMRMMRMMMMMX M     @P   #8     4 MMRMMMRMMRMMMMMMR<
+!MMMMMMMMMMMMMMMMM !    '8     8!    ' MtMMMMMMMMMMMMMMM!
+kMMRMMRMMRMMMRMMR4 H     #8.  @8     H MMMMRMMMMMMRMMRMM!
+MMMMMMMMMMMMMMMMM>M         "`      .~i <!?MMMMMMMMMMMMM9
+'9MMRMMMRMMRMMP!   : %             H @ 8NRMHx<<<!!MMMMMR!
+ >MMMMMMMMM"   <<HMk!i *u       .* x*xR88888MMMMHi<<<<~<
+  !RMM#~   :<:MMRMMMMH.*n:      :*.HRMMMRM8888888MRMMM!
+  !     <<:tMMMMMMMMMM8RM<::: :<<XMMMMMMMMMR88888888MM!
+   ~ <<<XHMRMMMMMMRMM8RM<<<<< `!<<MRMMRMMRMMMRR888888#
+     :HMMMMMMMMMMMM988MM<<X!<~'~<<<MMMMMMMMMMMMMR88#!
+      ~MMRMMMRMMRMM88MM<<<?<<  <<<<!RMMMRMMRMMMMMM!
+        xMMMMMMMM988MM%<<<?<<: <!<<<?MMMMMMMMMMMX
+          !?MMMM@88MMR<<<<!<<<  <:<<<MRMMRMMMP!
+            "X*988RMM!<<<?!<<~  <!<<<<MMMMM?"
+                !X*MM<<<<H!<<`  <?<<<<<)!
+                     "+:uX!<<< .::+""
 
 
-music_tree.store_data_set(artist_data)
-sort_list = list(music_tree.children.keys())
-print(sort_list)
-music_tree.quicksort(sort_list, 0, len(sort_list) - 1)
-print(sort_list)
+               Welcome to the Artist Finder! 
 
 
-for artist in music_tree.children["Rap"].children.values():
-    print(f"""
---------------------------------------
-    Genre: {artist.genre}
-    Artist: {artist.artist}
-    Billboard Ranking: {artist.ranking}/100
-    Top Song: {artist.song}
-    # of Albums: {artist.albums}
---------------------------------------
     """)
+    program_loop = True
+    while program_loop == True:
+        music_tree.search_loop(sort_list)
+        user_response = ""
+        while user_response != "y" and user_response != "n":
+                user_response = input(f"Would you like to to search another genre? Enter 'y' for yes 'n' for no. \n").lower()
+        if user_response == "n":
+            program_loop = False
+    
+    print("Thank you for using the Artist Finder!")
+
+
+recommend_artists()
+
 
